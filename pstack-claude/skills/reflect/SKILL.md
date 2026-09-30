@@ -16,15 +16,15 @@ Invoke when the user says "reflect" or "/reflect". Skip when the conversation is
 
 ### 1. Locate the active transcript
 
-The parent finds its own transcript file before fanning out. It lives in this project's transcript directory, `~/.claude/projects/<slug>/`, where `<slug>` is the working directory with each `/` turned into `-` (`/home/you/proj` becomes `-home-you-proj`). Use that path. Do not glob across `~/.claude/projects/*/`. That crosses project boundaries and reads private chats from unrelated projects.
+The parent finds its own transcript file before fanning out. It lives in this project's transcript directory, `~/.claude/projects/<slug>/`, where `<slug>` is the working directory with every character other than a letter or digit turned into `-` (`/home/you/my_app` becomes `-home-you-my-app`). Very long paths are cut short with a hash suffix, so if the directory is missing, find it with `ls ~/.claude/projects | grep <repo-name>`. Use that path. Do not glob across `~/.claude/projects/*/`. That crosses project boundaries and reads private chats from unrelated projects.
 
 ```bash
-ls -t ~/.claude/projects/<slug>/*.jsonl 2>/dev/null | head -10
+ls ~/.claude/projects/<slug>/${CLAUDE_SESSION_ID}.jsonl
 ```
 
-Each session is `<session-id>.jsonl`. Its subagents sit under `<session-id>/subagents/`.
+This session's ID is `${CLAUDE_SESSION_ID}`. Its subagents sit under `${CLAUDE_SESSION_ID}/subagents/`.
 
-For each candidate, find the first line whose `type` is `user` and check that its `message.content` contains the conversation's opening user prompt. Take the matching path. If no path resolves, write a tight digest of the session and pass that instead.
+Confirm it by finding the first line whose `type` is `user` and checking that its `message.content` contains the conversation's opening user prompt. If no path resolves, write a tight digest of the session and pass that instead.
 
 ### 2. Spawn three reviewers in parallel
 

@@ -31,7 +31,7 @@ Every skill can also be called directly, for example `/pstack:how`, `/pstack:int
 | Cloud workers | `environment: "cloud"` | background subagents, with `isolation: "worktree"` when they write |
 | Sticky mode | `mode: true` frontmatter | poteto-mode says in its own text that it stays on for the conversation |
 | `/goal` | the agent arms it | a `goal.md` file the audit tick re-reads. Claude Code's `/goal` exists, but only the user can run it, and its Stop hook would keep the root from idling between `/loop` ticks |
-| PR forge | `gh` or Origin | `gh` only (GitHub MCP tools as a fallback) |
+| PR forge | `gh` or Origin | `gh` (GitHub MCP tools as a fallback). Orchestrate still uses `gt` for its stack frontier |
 | `deslop` | `cursor-team-kit` | Claude Code's built-in `/simplify` |
 | `control-ui`, `control-cli` | `cursor-team-kit` | the project's `verify-*` skill, else Claude Code's `run` skill, else Playwright or a plain shell run |
 | `create-skill` | Cursor built-in | Anthropic's `skill-creator` skill when installed |
@@ -61,6 +61,7 @@ So this port splits them:
 
 - `gh` for every PR playbook (babysit, shipping, opening a PR, autopilot, orchestrate).
 - [Bun](https://bun.sh) for `scripts/orch` and `scripts/watch-pr`. They install their own dependencies on first run.
+- [Graphite](https://graphite.dev) `gt` for Orchestrate only. `orch frontier set` reads the stack from `gt info`. The other PR playbooks never need it.
 - MCP servers are optional. `/pstack:why` uses whichever ones are connected (Slack, Linear, Notion, Sentry, Datadog, and so on) and falls back to git history.
 
 ## License

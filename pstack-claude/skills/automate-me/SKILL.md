@@ -28,7 +28,7 @@ Update mode changes the rest of the flow:
 
 ### 1. Mine their history
 
-Locate the active project's transcripts before fanning out. They live in this project's transcript directory, `~/.claude/projects/<slug>/`, where `<slug>` is the working directory with each `/` turned into `-` (`/home/you/proj` becomes `-home-you-proj`). Use only that path. Don't glob across `~/.claude/projects/*/`. That crosses project boundaries and reads private chats from unrelated projects.
+Locate the active project's transcripts before fanning out. They live in this project's transcript directory, `~/.claude/projects/<slug>/`, where `<slug>` is the working directory with every character other than a letter or digit turned into `-` (`/home/you/my_app` becomes `-home-you-my-app`). Very long paths are cut short with a hash suffix, so if the directory is missing, find it with `ls ~/.claude/projects | grep <repo-name>`. Use only that path. Don't glob across `~/.claude/projects/*/`. That crosses project boundaries and reads private chats from unrelated projects.
 
 Survey recent agent conversations within that scope for recurring patterns. Run multiple parallel subagents across slices of history (e.g. last 2-4 weeks, split into 3 slices so each has enough material). Each slice mining subagent reads transcripts from the workspace-scoped path the parent provides, looks for the signals below, and returns a short structured list of patterns it saw with evidence pointers. Default signals worth hunting:
 

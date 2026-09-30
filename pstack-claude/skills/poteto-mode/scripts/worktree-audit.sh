@@ -22,9 +22,12 @@ prs=$(mktemp)
 gh pr list --author "@me" --state all --limit 1000 \
 	--json number,state,headRefName 2>/dev/null > "$prs" || echo "[]" > "$prs"
 
-# Transcripts dir: ~/.claude/projects/<repo path with each non-alphanumeric turned into ->.
-slug=$(printf '%s' "$main_wt" | sed 's#[^A-Za-z0-9]#-#g')
-transcripts="$HOME/.claude/projects/$slug"
+# Transcripts dir: ~/.claude/projects/<path with each non-alphanumeric turned into ->.
+# A session started inside a linked worktree is keyed by that worktree's path.
+project_dir() { printf '%s/.claude/projects/%s' "$HOME" "$(printf '%s' "$1" | sed 's#[^A-Za-z0-9]#-#g')"; }
+mtime() { stat -c %Y "$1" 2>/dev/null || stat -f %m "$1"; }
+ymd() { date -d "@$1" '+%Y-%m-%d' 2>/dev/null || date -r "$1" '+%Y-%m-%d'; }
+transcripts=$(project_dir "$main_wt")
 now=$(date +%s)
 
 printf "SIZE\tAGE\tMERGED\tDIRTY\tREMOTE\tPR\tLAST_CHAT\tBUCKET\tWORKTREE\n"
@@ -63,11 +66,14 @@ git worktree list --porcelain | awk '/^worktree /{print $2}' | while read -r wt;
 	# Most recent chat whose transcript operated in this worktree. Match path
 	# followed by "/" or a quote so glint-482 does not match glint-482-r37.
 	last="-"; last_ts=0
-	if [ -d "$transcripts" ]; then
-		f=$(rg -l -e "${wt}/" -e "${wt}\"" "$transcripts" 2>/dev/null \
-			| xargs stat -f '%m %N' 2>/dev/null | sort -rn | head -1)
+	dirs=""
+	for d in "$transcripts" "$(project_dir "$wt")"; do [ -d "$d" ] && dirs="$dirs $d"; done
+	if [ -n "$dirs" ]; then
+		# shellcheck disable=SC2086
+		f=$(rg -l -e "${wt}/" -e "${wt}\"" $dirs 2>/dev/null \
+			| while read -r t; do printf '%s %s\n' "$(mtime "$t")" "$t"; done | sort -rn | head -1)
 		if [ -n "$f" ]; then last_ts=$(echo "$f" | awk '{print $1}')
-			last=$(date -r "$last_ts" '+%Y-%m-%d' 2>/dev/null); fi
+			last=$(ymd "$last_ts"); fi
 	fi
 	recent=$([ "$last_ts" -gt 0 ] 2>/dev/null && [ $(( (now - last_ts) / 86400 )) -le 4 ] && echo yes || echo no)
 
