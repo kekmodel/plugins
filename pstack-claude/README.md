@@ -7,16 +7,42 @@ Ported from `pstack` 0.15.5 at commit `2eb7ed4`. To pull upstream changes later,
 ## Install
 
 ```
-/plugin marketplace add kekmodel/plugins
+/plugin marketplace add kekmodel/plugins#claude/pstack-claude-port --sparse .claude-plugin pstack-claude
 /plugin install pstack@kekmodel-plugins
+```
+
+The plugin lives on the `claude/pstack-claude-port` branch. `#claude/pstack-claude-port` pins the marketplace to that branch, and `--sparse` fetches only the two folders the plugin needs instead of the whole repository. To pick up later commits on the branch, run `/plugin marketplace update kekmodel-plugins`, then `/plugin update pstack@kekmodel-plugins`, and restart Claude Code.
+
+To use Codex review seats, also install and log in to the Codex CLI:
+
+```
+npm install -g @openai/codex
+codex login
 ```
 
 Then:
 
-1. Run `/pstack:setup-pstack` to pick a budget and the model for each role. It writes `~/.claude/pstack-models.md`. Skip it and every skill uses the defaults below.
+1. Run `/pstack:setup-pstack` to pick a budget and the model for each role. It also checks whether Codex is installed and logged in. It writes `~/.claude/pstack-models.md`. Skip it and every skill uses the defaults below.
 2. Start a task with `/pstack:poteto-mode <what you want>`. It picks a playbook and calls the other skills as its steps need them.
 
 Every skill can also be called directly, for example `/pstack:how`, `/pstack:interrogate`, or `/pstack:unslop`. See the [upstream README](../pstack/README.md) for what each one does.
+
+## Usage
+
+| Goal | Command |
+|---|---|
+| Any task that needs rigor. It picks a playbook | `/pstack:poteto-mode this list scrolls with a drift every 750ms even when idle. repro first, then fix and verify.` |
+| Learn how a subsystem works | `/pstack:how how do we cancel runs? is there an n+1 when we look each one up?` |
+| Learn why code is shaped the way it is | `/pstack:why why is this feature flag still off?` |
+| Review a diff with the Opus, Fable, and Codex panel | `/pstack:interrogate review this PR` |
+| Same review, with different models for this run only | `/pstack:interrogate review this PR with opus:max, fable:xhigh, and codex:astra:xhigh` |
+| Try several designs and keep the best parts | `/pstack:arena give me three takes on the retry policy` |
+| Design types and module shape before code | `/pstack:architect design the cache invalidation API` |
+| Run many parallel checks and get one report | `/pstack:swarm check every package under packages/ against its check.sh` |
+| Strip AI tells from prose | `/pstack:unslop tighten the PR description` |
+| Change the default models | `/pstack:setup-pstack` |
+
+`poteto-mode` stays on for the rest of the conversation once you start it. Say so when you want it off.
 
 ## What changed from the Cursor version
 

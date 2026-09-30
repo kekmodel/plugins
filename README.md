@@ -116,12 +116,14 @@ plugins/
 
 ## Claude Code
 
-[`pstack-claude/`](pstack-claude/) is a Claude Code port of `pstack`. It has its own marketplace at `.claude-plugin/marketplace.json`:
+[`pstack-claude/`](pstack-claude/) is a Claude Code port of `pstack`, on the `claude/pstack-claude-port` branch. It has its own marketplace at `.claude-plugin/marketplace.json`:
 
 ```
-/plugin marketplace add kekmodel/plugins
+/plugin marketplace add kekmodel/plugins#claude/pstack-claude-port --sparse .claude-plugin pstack-claude
 /plugin install pstack@kekmodel-plugins
 ```
+
+See [`pstack-claude/README.md`](pstack-claude/README.md) for setup and usage.
 
 ## License
 
