@@ -21,8 +21,10 @@ case "$mode" in
 esac
 [ -d "$workdir" ] || { echo "codex-seat: workdir '$workdir' does not exist" >&2; exit 2; }
 [ -f "$prompt" ] || { echo "codex-seat: prompt file '$prompt' does not exist" >&2; exit 2; }
+[ -d "$(dirname "$out")" ] || { echo "codex-seat: directory of out file '$out' does not exist" >&2; exit 2; }
 out="$(cd "$(dirname "$out")" && pwd)/$(basename "$out")"
 limit=${CODEX_SEAT_TIMEOUT:-1200}
+case "$limit" in ''|*[!0-9]*) echo "codex-seat: CODEX_SEAT_TIMEOUT must be whole seconds, got '$limit'" >&2; exit 2 ;; esac
 
 command -v codex >/dev/null 2>&1 || { echo "codex-seat: codex CLI is not installed (npm install -g @openai/codex)" >&2; exit 3; }
 codex login status >/dev/null 2>&1 || { echo "codex-seat: codex is not logged in (run: codex login)" >&2; exit 4; }
@@ -33,22 +35,45 @@ args=(exec --sandbox "$sandbox" --cd "$workdir" --skip-git-repo-check --ephemera
 [ -n "$effort" ] && args+=(--config "model_reasoning_effort=\"$effort\"")
 
 rm -f "$out" "$out.timeout"
-set -m # give codex its own process group, so a timeout stops its children too
+# codex gets its own process group, so every stop reaches its children too.
+# TERM first, then KILL after a grace period, for a codex that ignores TERM.
+stop_codex() {
+	kill -TERM -- "-$pid" 2>/dev/null || return 0
+	for _ in 1 2 3 4 5 6 7 8 9 10; do kill -0 -- "-$pid" 2>/dev/null || return 0; sleep 1; done
+	kill -KILL -- "-$pid" 2>/dev/null || true
+}
+set -m
 codex "${args[@]}" - < "$prompt" > "$out.log" 2>&1 &
 pid=$!
 set +m
+# Stopping the seat itself (a killed background task) must not leave codex writing.
+on_stop() {
+	kill -TERM -- "-$pid" 2>/dev/null
+	( sleep 10; kill -KILL -- "-$pid" ) >/dev/null 2>&1 &
+	wait "$pid" 2>/dev/null
+	kill -KILL -- "-$pid" 2>/dev/null
+	exit 143
+}
+trap on_stop TERM INT HUP
 (
 	trap 'kill "$nap" 2>/dev/null; exit 0' TERM
 	sleep "$limit" & nap=$!
 	wait "$nap"
 	touch "$out.timeout"
-	kill -TERM -- "-$pid" 2>/dev/null
+	stop_codex
 ) &
 watchdog=$!
 status=0
 wait "$pid" || status=$?
 kill "$watchdog" 2>/dev/null || true
 wait "$watchdog" 2>/dev/null || true
+trap - TERM INT HUP
+kill -TERM -- "-$pid" 2>/dev/null || true # children codex left behind
+# A run that finished with an answer counts, even if the watchdog fired at the same moment.
+if [ "$status" -eq 0 ] && [ -s "$out" ]; then
+	rm -f "$out.timeout"
+	exit 0
+fi
 if [ -e "$out.timeout" ]; then
 	rm -f "$out.timeout"
 	echo "codex-seat: codex ran past ${limit}s and was stopped, see $out.log" >&2

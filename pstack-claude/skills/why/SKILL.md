@@ -81,9 +81,9 @@ Aim for a complete **coverage map**, not a minimal one. Document the null, don't
 Launch all matching investigators in a single message so they run concurrently. Don't ask one agent to cover multiple MCPs.
 
 Subagent config (each):
-- `subagent_type`: `general-purpose`
+- `subagent_type`: `general-purpose`, or `pstack:<model>-<effort>` when the value pins an effort
 - `model`: the `why investigators` line, default `sonnet`
-- Keep `general-purpose`. **Do not use the read-only `Explore` type or a tool-restricted agent.** Investigators need MCP access, and MCP-backed investigators fail without it. The prompt still says "do not edit files".
+- **Do not use the read-only `Explore` type or a tool-restricted agent.** Investigators need MCP access, and MCP-backed investigators fail without it. The prompt still says "do not edit files".
 
 Each investigator gets:
 1. The base prompt from `references/investigator-prompt.md`

@@ -22,7 +22,7 @@ When in doubt, take the simple path.
 
 Decompose the question into 2 to 4 exploration angles, each a distinct slice of the subsystem. Spawn all explorers in a single message:
 
-- `subagent_type`: `general-purpose`
+- `subagent_type`: `general-purpose`, or `pstack:<model>-<effort>` when the value pins an effort
 - `model`: the `how explorer` line, default `sonnet`
 - Read-only. The prompt says "do not edit files".
 

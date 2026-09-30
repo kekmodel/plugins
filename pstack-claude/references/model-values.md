@@ -25,7 +25,7 @@ The `pstack:<model>-<effort>` agents keep every tool, MCP included. When a brief
 
 ## When a value fails
 
-If the Agent tool rejects a value, run that seat on the role's default and say so. If it rejects the default too, leave `model` unset and say so. Never treat `inherit` as a rejected value. Do not block the run on a model problem.
+If the Agent tool rejects a model (a missing effort agent is handled in the table above), run that seat as the step's usual type with `model: sonnet` and say so. That is the same fallback a failed Codex seat gets. If `sonnet` is rejected too, leave `model` unset and say so. Never treat `inherit` as a rejected value. Do not block the run on a model problem.
 
 When two or more seats end up on the same model, their distinct angles or directions keep them independent. Never merge two seats into one.
 
