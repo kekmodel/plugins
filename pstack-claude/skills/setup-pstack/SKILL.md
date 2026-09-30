@@ -14,6 +14,8 @@ Write `~/.claude/pstack-models.md`, the file every pstack skill reads to pick a 
 
 The Agent tool's `model` parameter lists the values this session accepts. Read them from the tool definition. The usual set is `opus`, `sonnet`, `haiku`, and on some accounts `fable`. If you cannot tell, ask the user which ones they have. Never write a model you have not confirmed is available. The alias `inherit` is always valid. It means: omit `model` so the subagent runs on the parent chat model.
 
+Also check for OpenAI's Codex CLI with `command -v codex && codex login status`. When both succeed, `codex:<model>:<effort>` is available for panel roles (arena runners, arena cross-judge pool, architect runners, interrogate reviewers). A Codex seat runs through `scripts/codex-seat.sh`, not a subagent. When Codex is missing or logged out, say so, and a configured Codex seat falls back to a `sonnet` subagent at run time.
+
 ### 2. Load current state
 
 The default role-to-model mapping is the file shape shown in step 5 below. If `~/.claude/pstack-models.md` already exists, read it and treat its `# budget` line and its role values as the current choices. Otherwise start from those defaults. A line whose role is not in step 5 is from a retired role. Drop it.

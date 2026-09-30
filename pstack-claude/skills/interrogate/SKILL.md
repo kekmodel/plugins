@@ -32,13 +32,13 @@ Write one clear paragraph. If you're unsure about the intent, ask the user befor
 
 ## Step 3, Spawn Reviewers
 
-Launch all reviewers in a single message using the Agent tool. Use the `interrogate reviewers` line in `~/.claude/pstack-models.md`, one reviewer per entry, extending or shrinking the Reviewer A/B/C labels below to the configured entry count. If the file or that line is missing, use the table defaults.
+Launch all reviewers in a single message, subagents with the Agent tool and Codex seats with Bash. Use the `interrogate reviewers` line in `~/.claude/pstack-models.md`, one reviewer per entry, extending or shrinking the Reviewer A/B/C labels below to the configured entry count. If the file or that line is missing, use the table defaults.
 
 | Subagent | Default model |
 |----------|---------------|
 | Reviewer A | `opus` |
 | Reviewer B | `fable` |
-| Reviewer C | `sonnet` |
+| Reviewer C | `codex:astra:high` |
 
 For each reviewer:
 - `subagent_type`: `general-purpose`
@@ -46,6 +46,8 @@ For each reviewer:
 - Read-only. The prompt says "do not edit files".
 
 If the Agent tool rejects a configured entry or a table default, run that reviewer on Reviewer A's default (`opus`) and say so. If that is rejected too, leave `model` unset and say so. Do not block the review on the model issue. Never treat an `inherit` entry as a rejected model or apply the fallback to it. When two or more reviewers end up on the same model, their angles below are what keeps them independent, so never merge two reviewers into one.
+
+**Codex seats.** A panel entry `codex`, `codex:<model>`, or `codex:<model>:<effort>` runs on OpenAI's Codex CLI instead of a subagent. Write that seat's prompt to a file, then run `${CLAUDE_SKILL_DIR}/../../scripts/codex-seat.sh read <repo root> <prompt file> <out file> [<model>] [<effort>]` with the Bash tool's `run_in_background: true`, in the same message as the subagent spawns. From inside a subagent, run it in the foreground with `timeout: 600000` instead. The seat's answer lands in `<out file>`. Exit 3 or 4 means Codex is not installed or not logged in, and any other non-zero exit means the run failed. In each case, run that seat as a `sonnet` subagent and say so. Codex reads the codebase itself from the repo root, so its prompt names the diff range or files instead of pasting them when they are large.
 
 Read `references/reviewer-prompt.md` and fill in the template with:
 1. The stated intent
