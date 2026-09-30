@@ -114,6 +114,15 @@ plugins/
 └── ...
 ```
 
+## Claude Code
+
+[`pstack-claude/`](pstack-claude/) is a Claude Code port of `pstack`. It has its own marketplace at `.claude-plugin/marketplace.json`:
+
+```
+/plugin marketplace add kekmodel/plugins
+/plugin install pstack@kekmodel-plugins
+```
+
 ## License
 
 MIT

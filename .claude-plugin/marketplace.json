@@ -1,0 +1,16 @@
+{
+  "name": "kekmodel-plugins",
+  "owner": {
+    "name": "kekmodel"
+  },
+  "metadata": {
+    "description": "Claude Code ports of plugins from this repository."
+  },
+  "plugins": [
+    {
+      "name": "pstack",
+      "source": "./pstack-claude",
+      "description": "Claude Code port of pstack: poteto-mode playbooks, engineering principles, multi-model review, and verified work."
+    }
+  ]
+}
