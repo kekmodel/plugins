@@ -7,6 +7,7 @@
 # write  Codex may write inside <workdir> only (an arena candidate's worktree).
 #
 # The seat's final answer goes to <out-file>, the full run log to <out-file>.log.
+# CODEX_SEAT_TIMEOUT caps the run in seconds (default 1200). A run that hits it exits 124.
 # Exit 3: codex not installed. Exit 4: codex not logged in. Other non-zero: the run failed.
 set -euo pipefail
 
@@ -20,6 +21,8 @@ case "$mode" in
 esac
 [ -d "$workdir" ] || { echo "codex-seat: workdir '$workdir' does not exist" >&2; exit 2; }
 [ -f "$prompt" ] || { echo "codex-seat: prompt file '$prompt' does not exist" >&2; exit 2; }
+out="$(cd "$(dirname "$out")" && pwd)/$(basename "$out")"
+limit=${CODEX_SEAT_TIMEOUT:-1200}
 
 command -v codex >/dev/null 2>&1 || { echo "codex-seat: codex CLI is not installed (npm install -g @openai/codex)" >&2; exit 3; }
 codex login status >/dev/null 2>&1 || { echo "codex-seat: codex is not logged in (run: codex login)" >&2; exit 4; }
@@ -29,7 +32,29 @@ args=(exec --sandbox "$sandbox" --cd "$workdir" --skip-git-repo-check --ephemera
 [ -n "$model" ] && args+=(--model "$model")
 [ -n "$effort" ] && args+=(--config "model_reasoning_effort=\"$effort\"")
 
-if ! codex "${args[@]}" - < "$prompt" > "$out.log" 2>&1; then
+rm -f "$out" "$out.timeout"
+set -m # give codex its own process group, so a timeout stops its children too
+codex "${args[@]}" - < "$prompt" > "$out.log" 2>&1 &
+pid=$!
+set +m
+(
+	trap 'kill "$nap" 2>/dev/null; exit 0' TERM
+	sleep "$limit" & nap=$!
+	wait "$nap"
+	touch "$out.timeout"
+	kill -TERM -- "-$pid" 2>/dev/null
+) &
+watchdog=$!
+status=0
+wait "$pid" || status=$?
+kill "$watchdog" 2>/dev/null || true
+wait "$watchdog" 2>/dev/null || true
+if [ -e "$out.timeout" ]; then
+	rm -f "$out.timeout"
+	echo "codex-seat: codex ran past ${limit}s and was stopped, see $out.log" >&2
+	exit 124
+fi
+if [ "$status" -ne 0 ]; then
 	echo "codex-seat: codex exec failed, see $out.log" >&2
 	exit 1
 fi

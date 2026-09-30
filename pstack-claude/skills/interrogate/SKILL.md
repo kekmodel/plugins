@@ -41,13 +41,13 @@ Launch all reviewers in a single message, subagents with the Agent tool and Code
 | Reviewer C | `codex:astra:high` |
 
 For each reviewer:
-- `subagent_type`: `general-purpose`
-- `model`: the configured `interrogate reviewers` entry, or the table default with no configured line. For an `inherit` entry, omit `model` so that reviewer runs on the parent model. A value of the form `<model>:<effort>`, such as `opus:xhigh`, means: spawn `subagent_type: pstack:<model>-<effort>` and leave `model` unset, since that agent pins both. If the Agent tool does not list that agent, spawn the usual type with `model: <model>` and say the effort was not applied. When the user names a model, effort, or panel for this run (for example "interrogate with opus:max and codex:astra:xhigh"), use it for this run in place of the config line and the default.
+- `subagent_type`: `general-purpose`, or `pstack:<model>-<effort>` when the value pins an effort
+- `model`: the configured `interrogate reviewers` entry, or the table default with no configured line. Resolve every role value per `${CLAUDE_SKILL_DIR}/../../references/model-values.md`, using this SKILL.md's own directory if `${CLAUDE_SKILL_DIR}` shows up empty. It covers per-run overrides, `<model>:<effort>`, `inherit`, rejected values, and Codex seats.
 - Read-only. The prompt says "do not edit files".
 
-If the Agent tool rejects a configured entry or a table default, run that reviewer on Reviewer A's default (`opus:xhigh`) and say so. If that is rejected too, leave `model` unset and say so. Do not block the review on the model issue. Never treat an `inherit` entry as a rejected model or apply the fallback to it. When two or more reviewers end up on the same model, their angles below are what keeps them independent, so never merge two reviewers into one.
+A rejected entry falls back to that reviewer's table default. When two or more reviewers end up on the same model, their angles below are what keeps them independent, so never merge two reviewers into one.
 
-**Codex seats.** A panel entry `codex`, `codex:<model>`, or `codex:<model>:<effort>` runs on OpenAI's Codex CLI instead of a subagent. Write that seat's prompt to a file, then run `${CLAUDE_SKILL_DIR}/../../scripts/codex-seat.sh read <repo root> <prompt file> <out file> [<model>] [<effort>]` with the Bash tool's `run_in_background: true`, in the same message as the subagent spawns. If `${CLAUDE_SKILL_DIR}` shows up empty or unexpanded, use this SKILL.md's own directory. This skill spawns subagents, so it runs in the main session, never inside a subagent. The seat's answer lands in `<out file>`. Exit 3 or 4 means Codex is not installed or not logged in, and any other non-zero exit means the run failed. In each case, run that seat as a `sonnet` subagent and say so. Codex reads the codebase itself from the repo root, so its prompt names the diff range or files instead of pasting them when they are large.
+A Codex reviewer is a Codex seat in `read` mode from the repo root.
 
 Read `references/reviewer-prompt.md` and fill in the template with:
 1. The stated intent

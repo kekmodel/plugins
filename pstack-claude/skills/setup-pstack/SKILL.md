@@ -16,7 +16,7 @@ The Agent tool's `model` parameter lists the models this session accepts. Read t
 
 A value can pin a reasoning effort as `<model>:<effort>`. The skills run it on the plugin agent `pstack:<model>-<effort>`, which sets both in its frontmatter. List the ones the Agent tool shows. This plugin ships agents for `opus`, `fable`, and `sonnet` at each effort `low`, `medium`, `high`, `xhigh`, and `max`. Offer only combinations whose agent the Agent tool lists. A bare model runs at the session's own effort.
 
-Also check for OpenAI's Codex CLI with `command -v codex && codex login status`. When both succeed, `codex:<model>:<effort>` is available for panel roles (arena runners, arena cross-judge pool, architect runners, interrogate reviewers). A Codex seat runs through `scripts/codex-seat.sh`, not a subagent. When Codex is missing or logged out, say so, and a configured Codex seat falls back to a `sonnet` subagent at run time.
+Also check for OpenAI's Codex CLI with `command -v codex && codex login status`. When both succeed, `codex`, `codex:<model>`, and `codex:<model>:<effort>` are available for panel roles (arena runners, arena cross-judge pool, architect runners, interrogate reviewers). A Codex seat runs through `scripts/codex-seat.sh`, not a subagent. When Codex is missing or logged out, say so, and a configured Codex seat falls back to a `sonnet` subagent at run time.
 
 ### 2. Load current state
 
@@ -30,7 +30,7 @@ The default role-to-model mapping is the file shape shown in step 5 below. If `~
 - `max — opus xhigh everywhere`
 - `lean — sonnet judges, haiku codes`
 
-**(b) Apply it.** Build the working table from the defaults in step 5. On a re-run, list each role where the existing file differs from those defaults and ask whether to keep it or take the default. Defaults change between versions, so a differing value is not proof the user chose it.
+**(b) Apply it.** First build the working table: the defaults in step 5 with the budget below applied. Then, on a re-run, list each role where the existing file differs from that table and ask whether to keep the file's value or take the table's. Defaults change between versions, so a differing value is not proof the user chose it. The answers are final, and the budget does not overwrite a value the user kept.
 
 - `balanced` leaves the defaults as they are.
 - `max` sets every single-model role to `opus:xhigh`. Panel lists keep their mix so reviewers still differ.

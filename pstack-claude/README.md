@@ -25,7 +25,7 @@ Every skill can also be called directly, for example `/pstack:how`, `/pstack:int
 | Subagents | `Task` tool, `generalPurpose`, `readonly` | `Agent` tool, `general-purpose`, a "do not edit files" line in the prompt |
 | Questions | `AskQuestion` | `AskUserQuestion` |
 | Model config | `~/.cursor/rules/pstack-models.mdc` | `~/.claude/pstack-models.md` |
-| Models | grok / opus / gpt-sol mix | `opus:xhigh` for judgment, `opus:medium` for code, and review panels of `opus:xhigh`, `fable:high`, and a Codex CLI seat (`codex:astra:high`) |
+| Models | grok / opus / gpt-sol mix | `opus:xhigh` for judgment, `opus:medium` for playbook code delegates, `sonnet` for explorers, investigators, and swarm workers, and review panels of `opus:xhigh`, `fable:high`, and a Codex CLI seat (`codex:astra:high`) |
 | Effort | an effort token in the model slug | `<model>:<effort>` runs on a shipped `pstack:<model>-<effort>` agent that pins both in its frontmatter. Budgets are `balanced`, `max`, `lean` |
 | Nested spawns | subagents spawn subagents (depth 3) | only the main thread spawns. Orchestrate has no sub-coordinators, and autopilot owners hand fan-out back to the root |
 | Cloud workers | `environment: "cloud"` | background subagents, with `isolation: "worktree"` when they write |
@@ -51,7 +51,9 @@ So this port splits them:
 
 `arena`, `architect`, and `interrogate` pit different models against each other. A Claude subagent can only run Claude models, so the third seat runs OpenAI's Codex CLI through `scripts/codex-seat.sh`. Codex starts in the repo root and reads the codebase itself. Review seats run in a read-only sandbox. An arena runner may write only inside its own candidate directory.
 
-The seat needs the Codex CLI (`npm install -g @openai/codex`) and a login (`codex login`). Without them, or when a run fails, that seat falls back to a `sonnet` subagent and the skill says so.
+The seat needs the Codex CLI (`npm install -g @openai/codex`) and a login (`codex login`). Without them, when a run fails, or when it runs past `CODEX_SEAT_TIMEOUT` (default 1200 seconds), that seat falls back to a `sonnet` subagent and the skill says so. `astra` is the default Codex model. If your account does not have it, set another with `/pstack:setup-pstack`.
+
+The rules for every role value, Codex seats included, live in one place: [`references/model-values.md`](references/model-values.md).
 
 ## Effort agents
 
