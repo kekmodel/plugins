@@ -33,7 +33,7 @@ Tests alone are not sufficient verification. A PR is verified only when its unit
 
 - [ ] State the protocol and this plan to the operator, then stop. Start execution only on the operator's explicit go.
 - [ ] On the operator's go, write `goal.md` in the work dir with this exact text. "<The plan path, the PR ids in order, the verification rule, who merges, and the done condition.>"
-- [ ] Read these at program start. Re-read them at every tick. pstack files come from the installed plugin, where `<pstack>` is the absolute path of its `skills/` directory. Project files come from trunk.
+- [ ] Read these at program start. Re-read them at every tick. pstack files come from the installed plugin. `<pstack>` is its `skills/` directory, the parent of poteto-mode's base directory. Resolve it fresh at each tick, since a plugin update moves it. Project files come from trunk.
   - [ ] `<pstack>/poteto-mode/playbooks/<execution playbook>.md`
   - [ ] `<pstack>/swarm/SKILL.md`
   - [ ] `git show origin/main:<control skill path>`
@@ -54,10 +54,10 @@ Tests alone are not sufficient verification. A PR is verified only when its unit
 
 ### PR mechanics, for every PR
 
-- [ ] Use `gh` for every PR operation. Never require `gt`.
+- [ ] Use `gh` for every PR operation. Never require `gt`, except under Orchestrate, whose stacker runs it.
 - [ ] Open the PR ready, never draft, with `gh pr create --base <base-branch>`. A stack child targets its parent branch.
 - [ ] Run the repo's lint and typecheck once before the PR-facing push. Push with hooks on.
-- [ ] Run `/simplify` before each commit and `/no-comments` before review.
+- [ ] Strip slop before each commit and comments before review. The main session runs `/simplify` and `/no-comments`. A subagent owner does both inline per its autopilot playbook.
 - [ ] Triage every Bugbot and security-reviewer comment per `../references/bugbot-triage.md`.
 - [ ] Rebase onto current trunk before the code-ready report and babysit. Keep that merge base in fix rounds. Rebase again only at merge prep, on a `git merge-tree` conflict with trunk, or on a CI failure that comes from a change on trunk.
 

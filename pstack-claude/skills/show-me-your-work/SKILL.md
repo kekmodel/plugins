@@ -55,7 +55,7 @@ Commit it only when the work is ambitious enough that a reviewer needs the trail
 
 ## Audit the log against the transcript
 
-At the end of the run, before handing back, check the log told the truth. Read this run's transcript under this project's transcript directory, `~/.claude/projects/<slug>/`, where `<slug>` is the working directory with every character other than a letter or digit turned into `-` (`/home/you/my_app` becomes `-home-you-my-app`). Very long paths are cut short with a hash suffix, so if the directory is missing, find it with `ls ~/.claude/projects | grep <repo-name>`. This session's file is `${CLAUDE_SESSION_ID}.jsonl`. Never take the newest file, since another session in the same project may have written it. Don't glob across `~/.claude/projects/*/`. That reads unrelated private chats. Walk this run's rows against what actually happened. Each stretch of them begins at one of this run's `start` rows, or at the first row if this run created the log, and ends at the next `start` row of another run:
+At the end of the run, before handing back, check the log told the truth. Read this run's transcript under this project's transcript directory, `~/.claude/projects/<slug>/`, where `<slug>` is the working directory with every character other than a letter or digit turned into `-` (`/home/you/my_app` becomes `-home-you-my-app`). Very long paths are cut short with a hash suffix, so if the directory is missing, find it with `ls ~/.claude/projects | grep <repo-name>`. The main session's file is `${CLAUDE_SESSION_ID}.jsonl`. A subagent's file sits under `${CLAUDE_SESSION_ID}/subagents/`. Pick the one whose first user message is your brief. Never take the newest file, since another session or subagent may have written it. Don't glob across `~/.claude/projects/*/`. That reads unrelated private chats. Walk this run's rows against what actually happened. Each stretch of them begins at one of this run's `start` rows, or at the first row if this run created the log, and ends at the next `start` row of another run:
 
 - Check that every row maps to a real decision or action.
 - Check that each row's evidence resolves and shows what the row claims.
@@ -65,7 +65,7 @@ Correct the log, not the story. The audit never edits or removes a row, even an 
 
 ## Cross-model review of the trail
 
-Before handing back, spawn a subagent on a different model from the one that did the work. Self-review is not a substitute. The subagent reads the audit trail and the run's transcript, then flags what the user should pay attention to. Not a redo of the work, a scan for what's suboptimal or risky.
+Before handing back, spawn a subagent on a different model from the one that did the work. A subagent cannot spawn one, so it returns the trail and the parent runs this review. Self-review is not a substitute. The subagent reads the audit trail and the run's transcript, then flags what the user should pay attention to. Not a redo of the work, a scan for what's suboptimal or risky.
 
 - Decisions logged with weak or absent evidence.
 - Verification steps skipped or claimed without proof in the transcript.
