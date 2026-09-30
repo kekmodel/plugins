@@ -30,7 +30,7 @@ Every skill can also be called directly, for example `/pstack:how`, `/pstack:int
 | Nested spawns | subagents spawn subagents (depth 3) | only the main thread spawns. Orchestrate has no sub-coordinators, and autopilot owners hand fan-out back to the root |
 | Cloud workers | `environment: "cloud"` | background subagents, with `isolation: "worktree"` when they write |
 | Sticky mode | `mode: true` frontmatter | poteto-mode says in its own text that it stays on for the conversation |
-| `/goal` | Cursor command | a `goal.md` file the audit tick re-reads |
+| `/goal` | the agent arms it | Claude Code's `/goal` too, but only the user can run it, so the root hands the operator the exact line and keeps a copy in `goal.md` for the audit tick |
 | PR forge | `gh` or Origin | `gh` only (GitHub MCP tools as a fallback) |
 | `deslop` | `cursor-team-kit` | Claude Code's built-in `/simplify` |
 | `control-ui`, `control-cli` | `cursor-team-kit` | the project's `verify-*` skill, else Claude Code's `run` skill, else Playwright or a plain shell run |
