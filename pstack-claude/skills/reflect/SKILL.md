@@ -30,7 +30,7 @@ Confirm it by finding the first line whose `type` is `user` and checking that it
 
 One message, three `Agent` calls, `subagent_type: general-purpose`, with `model` set as below. `general-purpose` keeps MCP access, which reviewers need for context lookups (tickets, chat threads, observability traces referenced in the transcript).
 
-Each reviewer and the synthesizer name a role line in `~/.claude/pstack-models.md` and a default. Set `model` to that line's value, or to the default if the file or the line is missing. Leave `model` unset when the value is `inherit`. If the Agent tool rejects a value, use the default and say so. If it rejects the default too, leave `model` unset and say so.
+Each reviewer and the synthesizer name a role line in `~/.claude/pstack-models.md` and a default. Set `model` to that line's value, or to the default if the file or the line is missing. Leave `model` unset when the value is `inherit`. If the Agent tool rejects a value, use the default and say so. If it rejects the default too, leave `model` unset and say so. A value of the form `<model>:<effort>`, such as `opus:xhigh`, means: spawn `subagent_type: pstack:<model>-<effort>` and leave `model` unset, since that agent pins both. If the Agent tool does not list that agent, spawn the usual type with `model: <model>` and say the effort was not applied. When the user names a model, effort, or panel for this run (for example "interrogate with opus:max and codex:astra:xhigh"), use it for this run in place of the config line and the default.
 
 | Lens | Role line | Default `model` | Prompt template |
 |---|---|---|---|
@@ -42,7 +42,7 @@ Pass each template verbatim, substituting the transcript path or digest where ma
 
 ### 3. Synthesize
 
-One `Agent` call, `subagent_type: general-purpose`, with `model` from the `reflect judgment, divergent, synthesizer` line (default `opus`). The synthesizer's quality check includes spot-verifying citations, which can require MCP access, so keep `general-purpose`. Use `references/synthesizer.md` verbatim, with each reviewer's full output inlined where marked. The synthesizer returns a structured Accepted / Rejected / Backlog list.
+One `Agent` call, `subagent_type: general-purpose`, with `model` from the `reflect judgment, divergent, synthesizer` line (default `opus:xhigh`). The synthesizer's quality check includes spot-verifying citations, which can require MCP access, so keep `general-purpose`. Use `references/synthesizer.md` verbatim, with each reviewer's full output inlined where marked. The synthesizer returns a structured Accepted / Rejected / Backlog list.
 
 ### 4. Structural enforcement check
 

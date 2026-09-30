@@ -36,16 +36,16 @@ Launch all reviewers in a single message, subagents with the Agent tool and Code
 
 | Subagent | Default model |
 |----------|---------------|
-| Reviewer A | `opus` |
-| Reviewer B | `fable` |
+| Reviewer A | `opus:xhigh` |
+| Reviewer B | `fable:high` |
 | Reviewer C | `codex:astra:high` |
 
 For each reviewer:
 - `subagent_type`: `general-purpose`
-- `model`: the configured `interrogate reviewers` entry, or the table default with no configured line. For an `inherit` entry, omit `model` so that reviewer runs on the parent model.
+- `model`: the configured `interrogate reviewers` entry, or the table default with no configured line. For an `inherit` entry, omit `model` so that reviewer runs on the parent model. A value of the form `<model>:<effort>`, such as `opus:xhigh`, means: spawn `subagent_type: pstack:<model>-<effort>` and leave `model` unset, since that agent pins both. If the Agent tool does not list that agent, spawn the usual type with `model: <model>` and say the effort was not applied. When the user names a model, effort, or panel for this run (for example "interrogate with opus:max and codex:astra:xhigh"), use it for this run in place of the config line and the default.
 - Read-only. The prompt says "do not edit files".
 
-If the Agent tool rejects a configured entry or a table default, run that reviewer on Reviewer A's default (`opus`) and say so. If that is rejected too, leave `model` unset and say so. Do not block the review on the model issue. Never treat an `inherit` entry as a rejected model or apply the fallback to it. When two or more reviewers end up on the same model, their angles below are what keeps them independent, so never merge two reviewers into one.
+If the Agent tool rejects a configured entry or a table default, run that reviewer on Reviewer A's default (`opus:xhigh`) and say so. If that is rejected too, leave `model` unset and say so. Do not block the review on the model issue. Never treat an `inherit` entry as a rejected model or apply the fallback to it. When two or more reviewers end up on the same model, their angles below are what keeps them independent, so never merge two reviewers into one.
 
 **Codex seats.** A panel entry `codex`, `codex:<model>`, or `codex:<model>:<effort>` runs on OpenAI's Codex CLI instead of a subagent. Write that seat's prompt to a file, then run `${CLAUDE_SKILL_DIR}/../../scripts/codex-seat.sh read <repo root> <prompt file> <out file> [<model>] [<effort>]` with the Bash tool's `run_in_background: true`, in the same message as the subagent spawns. From inside a subagent, run it in the foreground with `timeout: 600000` instead. The seat's answer lands in `<out file>`. Exit 3 or 4 means Codex is not installed or not logged in, and any other non-zero exit means the run failed. In each case, run that seat as a `sonnet` subagent and say so. Codex reads the codebase itself from the repo root, so its prompt names the diff range or files instead of pasting them when they are large.
 

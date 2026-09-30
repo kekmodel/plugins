@@ -11,7 +11,7 @@ Investigate the motivation and intent behind code.
 
 Companion to the `how` skill. `how` answers what the code does and how it works. `why` answers what forces led to its shape.
 
-Each spawn below names a role line in `~/.claude/pstack-models.md` and a default. Set the Agent tool's `model` to that line's value, or to the default if the file or the line is missing. Leave `model` unset when the value is `inherit`. If the Agent tool rejects a value, use the default and say so. If it rejects the default too, leave `model` unset and say so.
+Each spawn below names a role line in `~/.claude/pstack-models.md` and a default. Set the Agent tool's `model` to that line's value, or to the default if the file or the line is missing. Leave `model` unset when the value is `inherit`. If the Agent tool rejects a value, use the default and say so. If it rejects the default too, leave `model` unset and say so. A value of the form `<model>:<effort>`, such as `opus:xhigh`, means: spawn `subagent_type: pstack:<model>-<effort>` and leave `model` unset, since that agent pins both. If the Agent tool does not list that agent, spawn the usual type with `model: <model>` and say the effort was not applied. When the user names a model, effort, or panel for this run (for example "interrogate with opus:max and codex:astra:xhigh"), use it for this run in place of the config line and the default.
 
 ## Operating Posture
 
@@ -126,7 +126,7 @@ If your scope assessment suggests a single-commit trivial target where the PR de
 Spawn one synthesizer subagent:
 
 - `subagent_type`: `general-purpose`
-- `model`: the `why synthesizer` line, default `opus`
+- `model`: the `why synthesizer` line, default `opus:xhigh`
 - Keep `general-purpose`. The synthesizer's quality check spot-verifies citations, which can require MCP access.
 
 The synthesizer gets:

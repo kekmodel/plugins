@@ -25,8 +25,8 @@ Every skill can also be called directly, for example `/pstack:how`, `/pstack:int
 | Subagents | `Task` tool, `generalPurpose`, `readonly` | `Agent` tool, `general-purpose`, a "do not edit files" line in the prompt |
 | Questions | `AskQuestion` | `AskUserQuestion` |
 | Model config | `~/.cursor/rules/pstack-models.mdc` | `~/.claude/pstack-models.md` |
-| Models | grok / opus / gpt-sol mix | Claude models only. Defaults: `opus` for judgment, `sonnet` for code, `opus, fable, sonnet` for review panels |
-| Budget | effort ladder (max to medium) | `balanced`, `max`, `lean` |
+| Models | grok / opus / gpt-sol mix | `opus:xhigh` for judgment, `opus:medium` for code, and review panels of `opus:xhigh`, `fable:high`, and a Codex CLI seat (`codex:astra:high`) |
+| Effort | an effort token in the model slug | `<model>:<effort>` runs on a shipped `pstack:<model>-<effort>` agent that pins both in its frontmatter. Budgets are `balanced`, `max`, `lean` |
 | Nested spawns | subagents spawn subagents (depth 3) | only the main thread spawns. Orchestrate has no sub-coordinators, and autopilot owners hand fan-out back to the root |
 | Cloud workers | `environment: "cloud"` | background subagents, with `isolation: "worktree"` when they write |
 | Sticky mode | `mode: true` frontmatter | poteto-mode says in its own text that it stays on for the conversation |
@@ -47,9 +47,19 @@ So this port splits them:
 - **User-only** (`disable-model-invocation: true`): `poteto-mode`, `setup-pstack`, `automate-me`, `recall`, `reflect`, `teach`, `bro`, `blast-radius`, `create-verification-skill`, `maintain-verification-skill`.
 - **Routed** (Claude can load them): `how`, `why`, `architect`, `arena`, `swarm`, `interrogate`, `unslop`, `no-comments`, `technical-writing`, `tdd`, `show-me-your-work`, `figure-it-out`, `typescript-best-practices`, and the 23 principles. Each description ends with "Only when /poteto-mode is active, another pstack skill routes here, or the user asks for it by name", so they stay quiet in ordinary chats.
 
-## Cross-model review is weaker here
+## Cross-model review with Codex
 
-`arena`, `architect`, `interrogate`, and `reflect` were built to pit different vendors' models against each other. With Claude models only, the panels mix `opus`, `fable`, and `sonnet`, and each reviewer still gets its own angle. That keeps reviewers independent, but it does not catch the blind spots one model family shares. If `fable` is not on your account, `setup-pstack` swaps it for the next model down.
+`arena`, `architect`, and `interrogate` pit different models against each other. A Claude subagent can only run Claude models, so the third seat runs OpenAI's Codex CLI through `scripts/codex-seat.sh`. Codex starts in the repo root and reads the codebase itself. Review seats run in a read-only sandbox. An arena runner may write only inside its own candidate directory.
+
+The seat needs the Codex CLI (`npm install -g @openai/codex`) and a login (`codex login`). Without them, or when a run fails, that seat falls back to a `sonnet` subagent and the skill says so.
+
+## Effort agents
+
+The plugin ships one agent per model and effort for `opus`, `fable`, and `sonnet` at `low`, `medium`, `high`, `xhigh`, and `max`, named `<model>-<effort>`. Each pins both in its frontmatter, since the Agent tool cannot set effort per call. Claude Code runs every pair without error, but a model may not honor an effort it does not support. To add a model, run `scripts/gen-effort-agents.sh <model>`.
+
+## Changing the models
+
+The values above are defaults. Change them for good with `/pstack:setup-pstack`, or by editing `~/.claude/pstack-models.md`. Change them for one run by naming them in the request, for example `/pstack:interrogate review this PR with opus:max, fable:xhigh, and codex:astra:xhigh`.
 
 ## Not included
 
@@ -62,6 +72,7 @@ So this port splits them:
 - `gh` for every PR playbook (babysit, shipping, opening a PR, autopilot, orchestrate).
 - [Bun](https://bun.sh) for `scripts/orch` and `scripts/watch-pr`. They install their own dependencies on first run.
 - [Graphite](https://graphite.dev) `gt` for Orchestrate only. `orch frontier set` reads the stack from `gt info`. The other PR playbooks never need it.
+- The Codex CLI is optional. Without it, the Codex panel seat runs as a `sonnet` subagent.
 - MCP servers are optional. `/pstack:why` uses whichever ones are connected (Slack, Linear, Notion, Sentry, Datadog, and so on) and falls back to git history.
 
 ## License

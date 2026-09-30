@@ -7,7 +7,7 @@ description: "Use for \"how does X work\", code walkthroughs before changing som
 
 Explore the codebase to answer "how does X work?" questions. Produce architectural explanations at the level of a senior engineer onboarding onto a subsystem, enough to build a working mental model, not so much that it reads like annotated source code.
 
-Each spawn below names a role line in `~/.claude/pstack-models.md` and a default. Set the Agent tool's `model` to that line's value, or to the default if the file or the line is missing. Leave `model` unset when the value is `inherit`. If the Agent tool rejects a value, use the default and say so. If it rejects the default too, leave `model` unset and say so.
+Each spawn below names a role line in `~/.claude/pstack-models.md` and a default. Set the Agent tool's `model` to that line's value, or to the default if the file or the line is missing. Leave `model` unset when the value is `inherit`. If the Agent tool rejects a value, use the default and say so. If it rejects the default too, leave `model` unset and say so. A value of the form `<model>:<effort>`, such as `opus:xhigh`, means: spawn `subagent_type: pstack:<model>-<effort>` and leave `model` unset, since that agent pins both. If the Agent tool does not list that agent, spawn the usual type with `model: <model>` and say the effort was not applied. When the user names a model, effort, or panel for this run (for example "interrogate with opus:max and codex:astra:xhigh"), use it for this run in place of the config line and the default.
 
 ## Step 1. Assess Complexity
 
@@ -33,7 +33,7 @@ Each explorer gets the prompt in `references/explorer-prompt.md` with its angle 
 Spawn one subagent with the Agent tool that explores and explains in one pass:
 
 - `subagent_type`: `general-purpose`
-- `model`: the `how explainer` line, default `opus`
+- `model`: the `how explainer` line, default `opus:xhigh`
 - Read-only. The prompt says "do not edit files".
 
 Build its prompt from `references/explainer-prompt.md` without the explorer-findings section. Go to Step 4.
@@ -43,7 +43,7 @@ Build its prompt from `references/explainer-prompt.md` without the explorer-find
 Once all explorers have returned, spawn one subagent with the Agent tool to synthesize their findings into one explanation:
 
 - `subagent_type`: `general-purpose`
-- `model`: the `how explainer` line, default `opus`
+- `model`: the `how explainer` line, default `opus:xhigh`
 - Read-only. The prompt says "do not edit files".
 
 Build its prompt from `references/explainer-prompt.md` with every explorer's findings filled in.
