@@ -30,7 +30,7 @@ The default role-to-model mapping is the file shape shown in step 5 below. If `~
 - `max — opus xhigh everywhere`
 - `lean — sonnet judges, haiku codes`
 
-**(b) Apply it.** Build the working table from the defaults in step 5, and on a re-run keep any role the user changed away from the defaults.
+**(b) Apply it.** Build the working table from the defaults in step 5. On a re-run, list each role where the existing file differs from those defaults and ask whether to keep it or take the default. Defaults change between versions, so a differing value is not proof the user chose it.
 
 - `balanced` leaves the defaults as they are.
 - `max` sets every single-model role to `opus:xhigh`. Panel lists keep their mix so reviewers still differ.
@@ -42,7 +42,7 @@ If a value's model is not in the detected set, use the next model down the ladde
 
 ### 4. Validate
 
-Every model written must be in the detected set, every `<model>:<effort>` must have its `pstack:<model>-<effort>` agent listed, and a Codex entry needs Codex installed and logged in. `inherit` always passes. If a chosen value is not available, stop and ask again.
+Every model written must be in the detected set, every `<model>:<effort>` must have its `pstack:<model>-<effort>` agent listed, and a Codex entry always passes, since it falls back to a `sonnet` subagent at run time. Warn once when Codex is missing or logged out. `inherit` always passes. If a chosen value is not available, stop and ask again.
 
 ### 5. Write the file
 
@@ -64,7 +64,7 @@ how explorer: sonnet
 how explainer: opus:xhigh
 why investigators: sonnet
 why synthesizer: opus:xhigh
-reflect tooling: sonnet
+reflect tooling: fable:high
 reflect judgment, divergent, synthesizer: opus:xhigh
 arena runners: opus:xhigh, fable:high, codex:astra:high
 arena cross-judge pool: opus:xhigh, fable:high, codex:astra:high

@@ -15,7 +15,7 @@ mode=$1 workdir=$2 prompt=$3 out=$4 model=${5:-} effort=${6:-}
 
 case "$mode" in
 	read) sandbox=read-only ;;
-	write) sandbox=workspace-write ;;
+	write) sandbox=workspace-write ;; # plus the /tmp exclusions below, so writes stay in <workdir>
 	*) echo "codex-seat: mode must be read or write, got '$mode'" >&2; exit 2 ;;
 esac
 [ -d "$workdir" ] || { echo "codex-seat: workdir '$workdir' does not exist" >&2; exit 2; }
@@ -25,6 +25,7 @@ command -v codex >/dev/null 2>&1 || { echo "codex-seat: codex CLI is not install
 codex login status >/dev/null 2>&1 || { echo "codex-seat: codex is not logged in (run: codex login)" >&2; exit 4; }
 
 args=(exec --sandbox "$sandbox" --cd "$workdir" --skip-git-repo-check --ephemeral --color never --output-last-message "$out")
+[ "$mode" = write ] && args+=(--config sandbox_workspace_write.exclude_slash_tmp=true --config sandbox_workspace_write.exclude_tmpdir_env_var=true)
 [ -n "$model" ] && args+=(--model "$model")
 [ -n "$effort" ] && args+=(--config "model_reasoning_effort=\"$effort\"")
 

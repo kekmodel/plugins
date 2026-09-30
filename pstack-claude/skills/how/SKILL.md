@@ -32,7 +32,7 @@ Each explorer gets the prompt in `references/explorer-prompt.md` with its angle 
 
 Spawn one subagent with the Agent tool that explores and explains in one pass:
 
-- `subagent_type`: `general-purpose`
+- `subagent_type`: `general-purpose`, or `pstack:<model>-<effort>` when the value pins an effort
 - `model`: the `how explainer` line, default `opus:xhigh`
 - Read-only. The prompt says "do not edit files".
 
@@ -42,7 +42,7 @@ Build its prompt from `references/explainer-prompt.md` without the explorer-find
 
 Once all explorers have returned, spawn one subagent with the Agent tool to synthesize their findings into one explanation:
 
-- `subagent_type`: `general-purpose`
+- `subagent_type`: `general-purpose`, or `pstack:<model>-<effort>` when the value pins an effort
 - `model`: the `how explainer` line, default `opus:xhigh`
 - Read-only. The prompt says "do not edit files".
 

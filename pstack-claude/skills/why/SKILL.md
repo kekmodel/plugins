@@ -125,7 +125,7 @@ If your scope assessment suggests a single-commit trivial target where the PR de
 
 Spawn one synthesizer subagent:
 
-- `subagent_type`: `general-purpose`
+- `subagent_type`: `general-purpose`, or `pstack:<model>-<effort>` when the value pins an effort
 - `model`: the `why synthesizer` line, default `opus:xhigh`
 - Keep `general-purpose`. The synthesizer's quality check spot-verifies citations, which can require MCP access.
 
